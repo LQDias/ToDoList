@@ -50,48 +50,94 @@ func testDecodeInvalidRemoteTask() {
     }
 }
 
-@Test
-func testFetchTaskReturnsDecodedTask() async throws {
-    let json = """
-    {
-        "userId": 1,
-        "id": 1,
-        "title": "Estudar Swift",
-        "completed": false
+@Suite(.serialized)
+struct TaskAPIMockedTests {
+
+    @Test
+    func testFetchTaskReturnsDecodedTask() async throws {
+        let json = """
+        {
+            "userId": 1,
+            "id": 1,
+            "title": "Estudar Swift",
+            "completed": false
+        }
+        """
+
+        let data = Data(json.utf8)
+
+        MockURLProtocol.requestHandler = { request in
+            let response = HTTPURLResponse(
+                url: request.url!,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "application/json"]
+            )!
+
+            return (response, data)
+        }
+
+        defer {
+            MockURLProtocol.requestHandler = nil
+        }
+
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [MockURLProtocol.self]
+
+        let session = URLSession(configuration: configuration)
+        defer {
+            session.invalidateAndCancel()
+        }
+
+        let service = TaskAPIService(session: session)
+        let task = try await service.fetchTask()
+
+        #expect(task.userId == 1)
+        #expect(task.id == 1)
+        #expect(task.title == "Estudar Swift")
+        #expect(task.completed == false)
     }
-    """
 
-    let data = Data(json.utf8)
+    @Test
+    func testFetchTaskThrowsHTTPError() async {
+        MockURLProtocol.requestHandler = { request in
+            let response = HTTPURLResponse(
+                url: request.url!,
+                statusCode: 500,
+                httpVersion: nil,
+                headerFields: nil
+            )!
 
-    MockURLProtocol.requestHandler = { request in
-        let response = HTTPURLResponse(
-            url: request.url!,
-            statusCode: 200,
-            httpVersion: nil,
-            headerFields: ["Content-Type": "application/json"]
-        )!
+            return (response, Data())
+        }
 
-        return (response, data)
+        defer {
+            MockURLProtocol.requestHandler = nil
+        }
+
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [MockURLProtocol.self]
+
+        let session = URLSession(configuration: configuration)
+        defer {
+            session.invalidateAndCancel()
+        }
+
+        let service = TaskAPIService(session: session)
+
+        do {
+            _ = try await service.fetchTask()
+            Issue.record("Era esperado um erro HTTP 500.")
+        } catch let error as APIError {
+            switch error {
+            case .httpError(let statusCode):
+                #expect(statusCode == 500)
+
+            default:
+                Issue.record("O serviço retornou um erro diferente do esperado.")
+            }
+        } catch {
+            Issue.record("Erro inesperado: \(error)")
+        }
     }
-
-    defer {
-        MockURLProtocol.requestHandler = nil
-    }
-
-    let configuration = URLSessionConfiguration.ephemeral
-    configuration.protocolClasses = [MockURLProtocol.self]
-
-    let session = URLSession(configuration: configuration)
-    defer {
-        session.invalidateAndCancel()
-    }
-
-    let service = TaskAPIService(session: session)
-
-    let task = try await service.fetchTask()
-
-    #expect(task.userId == 1)
-    #expect(task.id == 1)
-    #expect(task.title == "Estudar Swift")
-    #expect(task.completed == false)
 }
