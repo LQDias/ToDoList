@@ -5,11 +5,11 @@ final class MockTaskStorage: TaskStorageProtocol {
 
     private(set) var savedTasks: [ToDoList] = []
 
-    func save(_ tasks: [ToDoList]) {
+    func save(_ tasks: [ToDoList]) throws {
         savedTasks = tasks
     }
 
-    func load() -> [ToDoList] {
+    func load() throws -> [ToDoList] {
         return savedTasks
     }
 }

@@ -6,8 +6,12 @@ final class ToDoListCLI {
 
     private let viewModel: TaskListViewModel
 
-    init(viewModel: TaskListViewModel = TaskListViewModel()) {
+    init(viewModel: TaskListViewModel) {
         self.viewModel = viewModel
+    }
+
+    convenience init() throws {
+        try self.init(viewModel: TaskListViewModel())
     }
 
     // Executa o programa
@@ -29,16 +33,28 @@ final class ToDoListCLI {
             switch opcao {
 
             case "1":
-                criarTarefa()
+                do {
+                    try criarTarefa()
+                } catch {
+                    print("Erro ao salvar tarefa: \(error.localizedDescription)")
+                }
 
             case "2":
                 listarTarefas()
 
             case "3":
-                concluirTarefa()
+                do {
+                    try concluirTarefa()
+                } catch {
+                    print("Erro ao salvar tarefa: \(error.localizedDescription)")
+                }
 
             case "4":
-                excluirTarefa()
+                do {
+                    try excluirTarefa()
+                } catch {
+                    print("Erro ao salvar tarefa: \(error.localizedDescription)")
+                }
 
             case "5":
                 print("Até logo!")
@@ -84,7 +100,7 @@ final class ToDoListCLI {
 
     // Cadastra uma nova tarefa
     
-    private func criarTarefa() {
+    private func criarTarefa() throws {
         var titulo: String
 
         while true {
@@ -122,7 +138,7 @@ final class ToDoListCLI {
                 continue
             }
 
-            let result = viewModel.addTask(
+            let result = try viewModel.addTask(
                 title: titulo,
                 priority: prioridade
             )
@@ -165,7 +181,7 @@ final class ToDoListCLI {
     }
 
     // Marca uma tarefa como concluída
-    private func concluirTarefa() {
+    private func concluirTarefa() throws{
         guard !viewModel.tasks.isEmpty else {
             print("Não há tarefas para concluir.")
             return
@@ -177,7 +193,7 @@ final class ToDoListCLI {
             return
         }
 
-        guard viewModel.completeTask(at: indice) else {
+        guard try viewModel.completeTask(at: indice) else {
             print("Número inválido. Não existe uma tarefa nessa posição.")
             return
         }
@@ -186,7 +202,7 @@ final class ToDoListCLI {
     }
 
     // Exclui uma tarefa
-    private func excluirTarefa() {
+    private func excluirTarefa() throws{
         guard !viewModel.tasks.isEmpty else {
             print("Não há tarefas para excluir.")
             return
@@ -198,7 +214,7 @@ final class ToDoListCLI {
             return
         }
 
-        guard viewModel.deleteTask(at: indice) else {
+        guard try viewModel.deleteTask(at: indice) else {
             print("Número inválido. Não existe uma tarefa nessa posição.")
             return
         }

@@ -7,20 +7,20 @@ enum AddTaskResult: Equatable {
 }
 
 class TaskManager {
-
     private(set) var tasks: [ToDoList] = []
-
     private let storage: any TaskStorageProtocol
 
-    init(storage: any TaskStorageProtocol = TaskStorage()) {
+    init(storage: any TaskStorageProtocol) throws {
         self.storage = storage
-        self.tasks = storage.load()
+        self.tasks = try storage.load()
     }
 
-    // Adiciona tarefa
-    @discardableResult
-    func addTask(title: String, priority: Int) -> AddTaskResult {
+    convenience init() throws {
+        try self.init(storage: TaskStorage())
+    }
 
+    @discardableResult
+    func addTask(title: String, priority: Int) throws -> AddTaskResult {
         let cleanedTitle = title.trimmingCharacters(
             in: .whitespacesAndNewlines
         )
@@ -33,37 +33,40 @@ class TaskManager {
             return .invalidPriority
         }
 
-        let task = ToDoList(
-            title: cleanedTitle,
-            priority: priority
-        )
+        let task = ToDoList(title: cleanedTitle, priority: priority)
+        var updatedTasks = tasks
+        updatedTasks.append(task)
 
-        tasks.append(task)
-        storage.save(tasks)
+        try storage.save(updatedTasks)
+        tasks = updatedTasks
 
         return .success
     }
 
-    // Conclui tarefa
-    func completeTask(at index: Int) -> Bool {
+    func completeTask(at index: Int) throws -> Bool {
         guard tasks.indices.contains(index) else {
             return false
         }
 
-        tasks[index].isCompleted = true
-        storage.save(tasks)
+        var updatedTasks = tasks
+        updatedTasks[index].isCompleted = true
+
+        try storage.save(updatedTasks)
+        tasks = updatedTasks
 
         return true
     }
 
-    // Exclui tarefa
-    func deleteTask(at index: Int) -> Bool {
+    func deleteTask(at index: Int) throws -> Bool {
         guard tasks.indices.contains(index) else {
             return false
         }
 
-        tasks.remove(at: index)
-        storage.save(tasks)
+        var updatedTasks = tasks
+        updatedTasks.remove(at: index)
+
+        try storage.save(updatedTasks)
+        tasks = updatedTasks
 
         return true
     }

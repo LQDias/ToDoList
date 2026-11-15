@@ -1,31 +1,38 @@
 import Foundation
 
+enum TaskStorageError: Error {
+    case applicationSupportDirectoryUnavailable
+    case directoryCreationFailed(Error)
+    case fileReadFailed(Error)
+    case fileWriteFailed(Error)
+    case encodingFailed(Error)
+    case decodingFailed(Error)
+}
+
 protocol TaskStorageProtocol {
-    func save(_ tasks: [ToDoList])
-    func load() -> [ToDoList]
+    func save(_ tasks: [ToDoList]) throws
+    func load() throws -> [ToDoList]
 }
 
 final class TaskStorage: TaskStorageProtocol {
 
     private let fileURL: URL
 
-    init(fileURL: URL? = nil) {
+    init(fileURL: URL? = nil) throws {
         let resolvedURL: URL
 
         if let fileURL {
             resolvedURL = fileURL
         } else {
-            let fileManager = FileManager.default
-
-            guard let appSupportDirectory = fileManager.urls(
+            guard let appSupportDirectory = FileManager.default.urls(
                 for: .applicationSupportDirectory,
                 in: .userDomainMask
             ).first else {
-                fatalError("Não foi possível localizar a pasta de dados.")
+                throw TaskStorageError.applicationSupportDirectoryUnavailable
             }
 
             let folderURL = appSupportDirectory
-                .appendingPathComponent("SprintMate")
+                .appendingPathComponent("ToDoList")
 
             resolvedURL = folderURL.appendingPathComponent("tasks.json")
         }
@@ -36,39 +43,66 @@ final class TaskStorage: TaskStorageProtocol {
                 withIntermediateDirectories: true
             )
         } catch {
-            fatalError("Não foi possível criar a pasta: \(error)")
+            throw TaskStorageError.directoryCreationFailed(error)
         }
 
         self.fileURL = resolvedURL
     }
 
-    func save(_ tasks: [ToDoList]) {
+    func save(_ tasks: [ToDoList]) throws {
+        let data: Data
+
         do {
             let encoder = JSONEncoder()
             encoder.outputFormatting = .prettyPrinted
-
-            let data = try encoder.encode(tasks)
-            try data.write(to: fileURL, options: .atomic)
-
+            data = try encoder.encode(tasks)
         } catch {
-            print("Erro ao salvar tarefas: \(error)")
+            throw TaskStorageError.encodingFailed(error)
+        }
+
+        do {
+            try data.write(to: fileURL, options: .atomic)
+        } catch {
+            throw TaskStorageError.fileWriteFailed(error)
         }
     }
 
-    func load() -> [ToDoList] {
+    func load() throws -> [ToDoList] {
         guard FileManager.default.fileExists(atPath: fileURL.path) else {
             return []
         }
 
+        let data: Data
+
         do {
-            let data = try Data(contentsOf: fileURL)
-            let decoder = JSONDecoder()
-
-            return try decoder.decode([ToDoList].self, from: data)
-
+            data = try Data(contentsOf: fileURL)
         } catch {
-            print("Erro ao carregar tarefas: \(error)")
-            return []
+            throw TaskStorageError.fileReadFailed(error)
+        }
+
+        do {
+            return try JSONDecoder().decode([ToDoList].self, from: data)
+        } catch {
+            throw TaskStorageError.decodingFailed(error)
+        }
+    }
+}
+
+extension TaskStorageError: LocalizedError {
+    var errorDescription: String? {
+        switch self {
+        case .applicationSupportDirectoryUnavailable:
+            return "Não foi possível localizar a pasta de dados."
+        case .directoryCreationFailed(let error):
+            return "Falha ao criar diretório: \(error.localizedDescription)"
+        case .fileReadFailed(let error):
+            return "Falha ao ler arquivo: \(error.localizedDescription)"
+        case .fileWriteFailed(let error):
+            return "Falha ao salvar arquivo: \(error.localizedDescription)"
+        case .encodingFailed(let error):
+            return "Falha ao converter tarefas: \(error.localizedDescription)"
+        case .decodingFailed(let error):
+            return "Falha ao interpretar o arquivo: \(error.localizedDescription)"
         }
     }
 }

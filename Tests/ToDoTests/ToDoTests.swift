@@ -4,10 +4,10 @@ import Foundation
 
 // Rejeitar tarefa com título vazio
 @Test
-func testAddTaskWithEmptyTitle() {
-    let manager = TaskManager(storage: MockTaskStorage())
+func testAddTaskWithEmptyTitle() throws{
+    let manager = try TaskManager(storage: MockTaskStorage())
 
-    let result = manager.addTask(
+    let result = try manager.addTask(
         title: "",
         priority: 2
     )
@@ -18,15 +18,15 @@ func testAddTaskWithEmptyTitle() {
 
 // Concluir tarefa com índice válido
 @Test
-func testCompleteTask() {
-    let manager = TaskManager(storage: MockTaskStorage())
+func testCompleteTask() throws{
+    let manager = try TaskManager(storage: MockTaskStorage())
 
-    manager.addTask(
+    try manager.addTask(
         title: "Estudar Swift",
         priority: 2
     )
 
-    let result = manager.completeTask(at: 0)
+    let result = try manager.completeTask(at: 0)
 
     #expect(result == true)
     #expect(manager.tasks[0].isCompleted == true)
@@ -34,10 +34,10 @@ func testCompleteTask() {
 
 // Concluir tarefa com índice inválido
 @Test
-func testCompleteTaskWithInvalidIndex() {
-    let manager = TaskManager(storage: MockTaskStorage())
+func testCompleteTaskWithInvalidIndex() throws {
+    let manager = try TaskManager(storage: MockTaskStorage())
 
-    let result = manager.completeTask(at: 0)
+    let result = try manager.completeTask(at: 0)
 
     #expect(result == false)
     #expect(manager.tasks.isEmpty)
@@ -45,10 +45,10 @@ func testCompleteTaskWithInvalidIndex() {
 
 // Adicionar tarefa com título válido
 @Test
-func testAddTask() {
-    let manager = TaskManager(storage: MockTaskStorage())
+func testAddTask() throws {
+    let manager = try TaskManager(storage: MockTaskStorage())
 
-    let result = manager.addTask(
+    let result = try! manager.addTask(
         title: "Estudar Swift",
         priority: 2
     )
@@ -62,14 +62,14 @@ func testAddTask() {
 
 // Deletar tarefa com índice válido
 @Test
-func testDeleteTaskKeepsOtherTasks() {
-    let manager = TaskManager(storage: MockTaskStorage())
+func testDeleteTaskKeepsOtherTasks() throws{
+    let manager = try TaskManager(storage: MockTaskStorage())
 
-    manager.addTask(title: "Estudar Swift", priority: 1)
-    manager.addTask(title: "Estudar Git", priority: 2)
-    manager.addTask(title: "Estudar APIs", priority: 3)
+    try manager.addTask(title: "Estudar Swift", priority: 1)
+    try manager.addTask(title: "Estudar Git", priority: 2)
+    try manager.addTask(title: "Estudar APIs", priority: 3)
 
-    let result = manager.deleteTask(at: 1)
+    let result = try manager.deleteTask(at: 1)
 
     #expect(result == true)
     #expect(manager.tasks.count == 2)
@@ -79,10 +79,10 @@ func testDeleteTaskKeepsOtherTasks() {
 
 // Rejeitar tarefa com prioridade inválida
 @Test
-func testAddTaskWithInvalidPriority() {
-    let manager = TaskManager(storage: MockTaskStorage())
+func testAddTaskWithInvalidPriority() throws{
+    let manager = try TaskManager(storage: MockTaskStorage())
 
-    let result = manager.addTask(
+    let result = try manager.addTask(
         title: "Estudar Swift",
         priority: 0
     )
@@ -93,13 +93,13 @@ func testAddTaskWithInvalidPriority() {
 
 // Deletar tarefa com índice inválido
 @Test
-func testDeleteTaskWithInvalidIndex() {
-    let manager = TaskManager(storage: MockTaskStorage())
+func testDeleteTaskWithInvalidIndex() throws{
+    let manager = try TaskManager(storage: MockTaskStorage())
 
-    manager.addTask(title: "Estudar Swift", priority: 1)
-    manager.addTask(title: "Estudar Git", priority: 2)
+    try manager.addTask(title: "Estudar Swift", priority: 1)
+    try manager.addTask(title: "Estudar Git", priority: 2)
 
-    let result = manager.deleteTask(at: 5)
+    let result = try manager.deleteTask(at: 5)
 
     #expect(result == false)
     #expect(manager.tasks.count == 2)
@@ -109,7 +109,7 @@ func testDeleteTaskWithInvalidIndex() {
 
 // Salvar e recuperar tarefas de um arquivo JSON
 @Test
-func testSaveAndLoadTasks() {
+func testSaveAndLoadTasks() throws{
     let directory = FileManager.default.temporaryDirectory
         .appendingPathComponent(UUID().uuidString)
 
@@ -119,16 +119,16 @@ func testSaveAndLoadTasks() {
         try? FileManager.default.removeItem(at: directory)
     }
 
-    let storage = TaskStorage(fileURL: fileURL)
+    let storage = try TaskStorage(fileURL: fileURL)
 
     let tasks = [
         ToDoList(title: "Estudar Swift", priority: 2),
         ToDoList(title: "Revisar SQL", priority: 1)
     ]
 
-    storage.save(tasks)
+    try storage.save(tasks)
 
-    let loadedTasks = storage.load()
+    let loadedTasks = try storage.load()
 
     #expect(loadedTasks.count == 2)
     #expect(loadedTasks[0].title == "Estudar Swift")
@@ -138,7 +138,7 @@ func testSaveAndLoadTasks() {
 
 // Carregar quando o arquivo ainda não existe
 @Test
-func testLoadWithoutExistingFile() {
+func testLoadWithoutExistingFile() throws{
     let directory = FileManager.default.temporaryDirectory
         .appendingPathComponent(UUID().uuidString)
 
@@ -148,19 +148,19 @@ func testLoadWithoutExistingFile() {
         try? FileManager.default.removeItem(at: directory)
     }
 
-    let storage = TaskStorage(fileURL: fileURL)
+    let storage = try TaskStorage(fileURL: fileURL)
 
-    let loadedTasks = storage.load()
+    let loadedTasks = try storage.load()
 
     #expect(loadedTasks.isEmpty)
 }
 
 // Rejeitar título contendo apenas espaços
 @Test
-func testAddTaskWithWhitespaceTitle() {
-    let manager = TaskManager(storage: MockTaskStorage())
+func testAddTaskWithWhitespaceTitle() throws{
+    let manager = try TaskManager(storage: MockTaskStorage())
 
-    let result = manager.addTask(
+    let result = try manager.addTask(
         title: "   ",
         priority: 2
     )
@@ -171,10 +171,10 @@ func testAddTaskWithWhitespaceTitle() {
 
 // Rejeitar prioridade acima do limite
 @Test
-func testAddTaskWithPriorityAboveLimit() {
-    let manager = TaskManager(storage: MockTaskStorage())
+func testAddTaskWithPriorityAboveLimit() throws{
+    let manager = try TaskManager(storage: MockTaskStorage())
 
-    let result = manager.addTask(
+    let result = try manager.addTask(
         title: "Estudar Swift",
         priority: 4
     )

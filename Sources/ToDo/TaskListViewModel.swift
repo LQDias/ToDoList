@@ -1,34 +1,33 @@
-
 import Foundation
 
 final class TaskListViewModel {
 
     private let taskManager: TaskManager
 
-    init(taskManager: TaskManager = TaskManager()) {
+    init(taskManager: TaskManager) {
         self.taskManager = taskManager
     }
 
-    // Lista as tarefas
+    convenience init() throws {
+        try self.init(taskManager: TaskManager())
+    }
+
     var tasks: [ToDoList] {
         return taskManager.tasks
     }
 
-    // Adiciona uma tarefa
-    func addTask(title: String, priority: Int) -> AddTaskResult {
-        return taskManager.addTask(
+    func addTask(title: String, priority: Int) throws -> AddTaskResult {
+        return try taskManager.addTask(
             title: title,
             priority: priority
         )
     }
 
-    // Conclui uma tarefa
-    func completeTask(at index: Int) -> Bool {
-        return taskManager.completeTask(at: index)
+    func completeTask(at index: Int) throws -> Bool {
+        return try taskManager.completeTask(at: index)
     }
 
-    // Exclui uma tarefa
-    func deleteTask(at index: Int) -> Bool {
-        return taskManager.deleteTask(at: index)
+    func deleteTask(at index: Int) throws -> Bool {
+        return try taskManager.deleteTask(at: index)
     }
 }
