@@ -56,6 +56,11 @@ Sources/ToDo/
 
 O armazenamento utiliza um protocolo, permitindo substituir a implementação de persistência sem modificar as regras de negócio do `TaskManager`.
 
+A persistência utiliza operações que podem lançar erros (`throws`), permitindo que falhas de leitura, escrita, codificação e decodificação sejam comunicadas às camadas superiores.
+
+O `TaskManager` só atualiza seu estado em memória depois que a operação de salvamento é concluída com sucesso, evitando inconsistências entre os dados armazenados e os dados em execução.
+
+
 ## API REST
 
 O projeto utiliza a [JSONPlaceholder](https://jsonplaceholder.typicode.com/) para demonstrar a comunicação com serviços externos.
@@ -74,15 +79,19 @@ A comunicação é realizada com `URLSession` e `async/await`, incluindo verific
 
 O projeto utiliza o framework Swift Testing para verificar o comportamento das funcionalidades.
 
-Atualmente, são **15 testes automatizados**, cobrindo:
+Atualmente, são **21 testes automatizados**, cobrindo:
 
-- Validação na criação de tarefas.
-- Conclusão e exclusão de tarefas.
+- Validação de títulos e prioridades.
+- Criação, conclusão e exclusão de tarefas.
 - Tratamento de índices inválidos.
-- Persistência e recuperação de dados.
+- Persistência e recuperação de dados em JSON.
 - Comportamento do ViewModel.
 - Conversão de JSON em objetos Swift.
-- Tratamento de JSON inválido.
+- Tratamento de respostas HTTP inválidas e erros de requisição.
+- Tratamento de falhas de leitura e escrita.
+- Consistência do estado da aplicação quando ocorrem falhas de persistência.
+
+Os testes utilizam mocks para simular dependências externas, permitindo verificar comportamentos específicos sem depender de requisições reais ou falhas físicas no armazenamento.
 
 ## Integração contínua (CI)
 
