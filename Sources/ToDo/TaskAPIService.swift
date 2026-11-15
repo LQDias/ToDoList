@@ -12,6 +12,12 @@ enum APIError: Error {
 
 final class TaskAPIService {
 
+    private let session: URLSession
+
+    init(session: URLSession = .shared) {
+        self.session = session
+    }
+
     func fetchTask() async throws -> RemoteTask {
 
         guard let url = URL(
@@ -20,7 +26,7 @@ final class TaskAPIService {
             throw APIError.invalidURL
         }
 
-        let (data, response) = try await URLSession.shared.data(
+        let (data, response) = try await session.data(
             from: url
         )
 
