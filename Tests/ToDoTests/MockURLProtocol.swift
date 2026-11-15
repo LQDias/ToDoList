@@ -9,10 +9,12 @@ final class MockURLProtocol: URLProtocol {
     nonisolated(unsafe) static var requestHandler:
         ((URLRequest) throws -> (HTTPURLResponse, Data))?
 
+    // swiftlint:disable:next static_over_final_class
     override class func canInit(with request: URLRequest) -> Bool {
         true
     }
 
+    // swiftlint:disable:next static_over_final_class
     override class func canonicalRequest(
         for request: URLRequest
     ) -> URLRequest {

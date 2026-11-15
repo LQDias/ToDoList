@@ -4,7 +4,7 @@ import Foundation
 
 // Rejeitar tarefa com título vazio
 @Test
-func testAddTaskWithEmptyTitle() throws{
+func testAddTaskWithEmptyTitle() throws {
     let manager = try TaskManager(storage: MockTaskStorage())
 
     let result = try manager.addTask(
@@ -18,7 +18,7 @@ func testAddTaskWithEmptyTitle() throws{
 
 // Concluir tarefa com índice válido
 @Test
-func testCompleteTask() throws{
+func testCompleteTask() throws {
     let manager = try TaskManager(storage: MockTaskStorage())
 
     try manager.addTask(
@@ -48,7 +48,7 @@ func testCompleteTaskWithInvalidIndex() throws {
 func testAddTask() throws {
     let manager = try TaskManager(storage: MockTaskStorage())
 
-    let result = try! manager.addTask(
+    let result = try manager.addTask(
         title: "Estudar Swift",
         priority: 2
     )
@@ -62,7 +62,7 @@ func testAddTask() throws {
 
 // Deletar tarefa com índice válido
 @Test
-func testDeleteTaskKeepsOtherTasks() throws{
+func testDeleteTaskKeepsOtherTasks() throws {
     let manager = try TaskManager(storage: MockTaskStorage())
 
     try manager.addTask(title: "Estudar Swift", priority: 1)
@@ -79,7 +79,7 @@ func testDeleteTaskKeepsOtherTasks() throws{
 
 // Rejeitar tarefa com prioridade inválida
 @Test
-func testAddTaskWithInvalidPriority() throws{
+func testAddTaskWithInvalidPriority() throws {
     let manager = try TaskManager(storage: MockTaskStorage())
 
     let result = try manager.addTask(
@@ -93,7 +93,7 @@ func testAddTaskWithInvalidPriority() throws{
 
 // Deletar tarefa com índice inválido
 @Test
-func testDeleteTaskWithInvalidIndex() throws{
+func testDeleteTaskWithInvalidIndex() throws {
     let manager = try TaskManager(storage: MockTaskStorage())
 
     try manager.addTask(title: "Estudar Swift", priority: 1)
@@ -109,7 +109,7 @@ func testDeleteTaskWithInvalidIndex() throws{
 
 // Salvar e recuperar tarefas de um arquivo JSON
 @Test
-func testSaveAndLoadTasks() throws{
+func testSaveAndLoadTasks() throws {
     let directory = FileManager.default.temporaryDirectory
         .appendingPathComponent(UUID().uuidString)
 
@@ -138,7 +138,7 @@ func testSaveAndLoadTasks() throws{
 
 // Carregar quando o arquivo ainda não existe
 @Test
-func testLoadWithoutExistingFile() throws{
+func testLoadWithoutExistingFile() throws {
     let directory = FileManager.default.temporaryDirectory
         .appendingPathComponent(UUID().uuidString)
 
@@ -157,7 +157,7 @@ func testLoadWithoutExistingFile() throws{
 
 // Rejeitar título contendo apenas espaços
 @Test
-func testAddTaskWithWhitespaceTitle() throws{
+func testAddTaskWithWhitespaceTitle() throws {
     let manager = try TaskManager(storage: MockTaskStorage())
 
     let result = try manager.addTask(
@@ -171,7 +171,7 @@ func testAddTaskWithWhitespaceTitle() throws{
 
 // Rejeitar prioridade acima do limite
 @Test
-func testAddTaskWithPriorityAboveLimit() throws{
+func testAddTaskWithPriorityAboveLimit() throws {
     let manager = try TaskManager(storage: MockTaskStorage())
 
     let result = try manager.addTask(

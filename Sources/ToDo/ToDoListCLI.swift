@@ -30,42 +30,47 @@ final class ToDoListCLI {
                 in: .whitespacesAndNewlines
             )
 
-            switch opcao {
+            let shouldContinue = await processarOpcao(opcao)
 
-            case "1":
-                do {
-                    try criarTarefa()
-                } catch {
-                    print("Erro ao salvar tarefa: \(error.localizedDescription)")
-                }
-
-            case "2":
-                listarTarefas()
-
-            case "3":
-                do {
-                    try concluirTarefa()
-                } catch {
-                    print("Erro ao salvar tarefa: \(error.localizedDescription)")
-                }
-
-            case "4":
-                do {
-                    try excluirTarefa()
-                } catch {
-                    print("Erro ao salvar tarefa: \(error.localizedDescription)")
-                }
-
-            case "5":
-                print("Até logo!")
+            if !shouldContinue {
                 return
-            
-            case "6":
-                await consultarTarefa()
-
-            default:
-                print("Opção inválida. Tente novamente.")
             }
+        }
+    }
+
+    private func processarOpcao(_ opcao: String) async -> Bool {
+        switch opcao {
+        case "1":
+            executarAcao(criarTarefa)
+
+        case "2":
+            listarTarefas()
+
+        case "3":
+            executarAcao(concluirTarefa)
+
+        case "4":
+            executarAcao(excluirTarefa)
+
+        case "5":
+            print("Até logo!")
+            return false
+
+        case "6":
+            await consultarTarefa()
+
+        default:
+            print("Opção inválida. Tente novamente.")
+        }
+
+        return true
+    }
+
+    private func executarAcao(_ acao: () throws -> Void) {
+        do {
+            try acao()
+        } catch {
+            print("Erro ao salvar tarefa: \(error.localizedDescription)")
         }
     }
 
@@ -99,7 +104,7 @@ final class ToDoListCLI {
     }
 
     // Cadastra uma nova tarefa
-    
+
     private func criarTarefa() throws {
         var titulo: String
 
@@ -181,7 +186,7 @@ final class ToDoListCLI {
     }
 
     // Marca uma tarefa como concluída
-    private func concluirTarefa() throws{
+    private func concluirTarefa() throws {
         guard !viewModel.tasks.isEmpty else {
             print("Não há tarefas para concluir.")
             return
@@ -202,7 +207,7 @@ final class ToDoListCLI {
     }
 
     // Exclui uma tarefa
-    private func excluirTarefa() throws{
+    private func excluirTarefa() throws {
         guard !viewModel.tasks.isEmpty else {
             print("Não há tarefas para excluir.")
             return
