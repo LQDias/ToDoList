@@ -1,8 +1,14 @@
 # ToDoList
 
-**Gerenciador de tarefas desenvolvido em Swift**, com persistência local em JSON, integração com API REST e testes automatizados.
+**Gerenciador de tarefas desenvolvido em Swift**, com persistência local em JSON, integração demonstrativa com API REST e testes automatizados.
 
-O ToDoList é um projeto desenvolvido para praticar conceitos de desenvolvimento de software utilizando Swift, aplicando organização em camadas, orientação a objetos, injeção de dependência e programação assíncrona.
+O projeto foi desenvolvido com o objetivo de praticar conceitos de desenvolvimento de software utilizando Swift, explorando organização de código, orientação a objetos, persistência de dados e programação assíncrona.
+
+## Objetivo e escopo
+
+O ToDoList é um projeto individual de aprendizado e portfólio. Sua proposta é implementar um gerenciador de tarefas por linha de comando, com armazenamento local e funcionalidades básicas de gerenciamento.
+
+A integração com uma API externa complementa o projeto como demonstração de consumo de serviços REST.
 
 ## Funcionalidades
 
@@ -23,6 +29,7 @@ O ToDoList é um projeto desenvolvido para praticar conceitos de desenvolvimento
 - **Swift Testing** — testes automatizados.
 - **Swift Package Manager** — gerenciamento e estruturação do projeto.
 - **Git e GitHub** — versionamento de código.
+- **SwiftLint** — análise estática e padronização do código.
 - **GitHub Actions** — integração contínua (CI).
 
 ## Arquitetura
@@ -54,12 +61,9 @@ Sources/ToDo/
 | RemoteTask | Modelo dos dados recebidos da API. |
 | TaskAPIService | Responsável pelas requisições HTTP. |
 
-O armazenamento utiliza um protocolo, permitindo substituir a implementação de persistência sem modificar as regras de negócio do `TaskManager`.
+O armazenamento utiliza um protocolo, permitindo substituir sua implementação sem modificar diretamente as regras de negócio.
 
-A persistência utiliza operações que podem lançar erros (`throws`), permitindo que falhas de leitura, escrita, codificação e decodificação sejam comunicadas às camadas superiores.
-
-O `TaskManager` só atualiza seu estado em memória depois que a operação de salvamento é concluída com sucesso, evitando inconsistências entre os dados armazenados e os dados em execução.
-
+As operações de persistência também contam com tratamento de erros, buscando manter a consistência dos dados durante a execução.
 
 ## API REST
 
@@ -91,21 +95,34 @@ Atualmente, são **21 testes automatizados**, cobrindo:
 - Tratamento de falhas de leitura e escrita.
 - Consistência do estado da aplicação quando ocorrem falhas de persistência.
 
-Os testes utilizam mocks para simular dependências externas, permitindo verificar comportamentos específicos sem depender de requisições reais ou falhas físicas no armazenamento.
+Os testes utilizam mocks para simular dependências e verificar diferentes cenários de execução.
 
 ## Integração contínua (CI)
 
-O projeto utiliza GitHub Actions para automatizar a compilação e a execução dos testes.
+O projeto utiliza GitHub Actions para automatizar verificações de qualidade.
 
 O workflow é executado em um ambiente macOS quando há atualizações na branch `main` ou abertura de Pull Requests direcionados a ela.
 
 As etapas incluem:
 
 1. Preparação do ambiente e instalação do Swift.
-2. Compilação do projeto com `swift build`.
-3. Execução dos testes com `swift test`.
+2. Execução do SwiftLint em modo estrito.
+3. Compilação do projeto com `swift build`.
+4. Execução dos testes com `swift test`.
 
-**Status:** CI configurado e execução validada com sucesso.
+O workflow foi configurado e validado com sucesso.
+
+## Decisões de projeto
+
+A interface de linha de comando foi escolhida para manter o escopo do projeto concentrado nas funcionalidades principais e nos conceitos de programação utilizados.
+
+O desenvolvimento foi realizado em ambiente Windows, sem acesso às ferramentas nativas de desenvolvimento Apple. Por isso, uma interface gráfica com SwiftUI não faz parte da versão atual.
+
+Uma possível evolução seria desenvolver uma interface gráfica, aproveitando a estrutura de gerenciamento de tarefas e persistência já existente.
+
+## Uso de ferramentas de IA
+
+Ferramentas de inteligência artificial foram utilizadas como apoio durante o desenvolvimento, auxiliando na pesquisa de soluções, esclarecimento de dúvidas técnicas, investigação de erros e documentação do projeto. As sugestões foram avaliadas e testadas durante o processo de desenvolvimento.
 
 ## Como executar
 
